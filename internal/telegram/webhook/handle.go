@@ -1,10 +1,12 @@
 package webhook
 
 import (
+	"bytes"
+	"encoding/json"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	"github.com/vadimistar/youtube-audio-bot/internal/entity"
-	"github.com/vadimistar/youtube-audio-bot/pkg/json"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -46,7 +48,7 @@ func (b *Bot) sendTaskToWorker(task entity.TaskRequest) (err error) {
 		err = errors.Wrap(err, "send task to worker")
 	}()
 
-	serializedTask, err := json.Serialize(task)
+	serializedTask, err := serializeTask(task)
 	if err != nil {
 		return err
 	}
@@ -57,6 +59,17 @@ func (b *Bot) sendTaskToWorker(task entity.TaskRequest) (err error) {
 	}
 
 	return nil
+}
+
+func serializeTask(task entity.TaskRequest) (io.Reader, error) {
+	serializedTask := new(bytes.Buffer)
+
+	err := json.NewEncoder(serializedTask).Encode(task)
+	if err != nil {
+		return nil, err
+	}
+
+	return serializedTask, nil
 }
 
 func validateURL(text string) error {
