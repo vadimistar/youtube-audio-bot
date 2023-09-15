@@ -10,12 +10,17 @@ var (
 	ErrInvalidURL = errors.New("invalid url")
 )
 
+const (
+	MsgUnknownError = "Неизвестная ошибка. Попробуйте позже."
+	MsgInvalidURL   = "Неправильная ссылка."
+)
+
 func (b *Bot) handleError(chatID int64, err error) {
-	msg := tgbotapi.NewMessage(chatID, "Неизвестная ошибка. Попробуйте позже.")
+	msg := tgbotapi.NewMessage(chatID, MsgUnknownError)
 
 	switch {
 	case errors.Is(err, ErrInvalidURL):
-		msg.Text = "Неправильная ссылка."
+		msg.Text = MsgInvalidURL
 	default:
 		log.Printf("handleError: chatID=%d err=%s", chatID, err)
 	}
