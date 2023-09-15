@@ -1,0 +1,12 @@
+version: '2.20.3'
+services:
+  telegram-bot:
+    build:
+      context: .
+      dockerfile: ./cmd/bot/Dockerfile
+    image: "cr.yandex/${YC_IMAGE_REGISTRY_ID}/telegram-bot"
+  worker:
+    build:
+      context: .
+      dockerfile: ./cmd/worker/Dockerfile
+    image: "cr.yandex/${YC_IMAGE_REGISTRY_ID}/worker"
