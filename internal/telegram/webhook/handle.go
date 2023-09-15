@@ -1,11 +1,10 @@
 package webhook
 
 import (
-	"bytes"
-	"encoding/json"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	"github.com/vadimistar/youtube-audio-bot/internal/entity"
+	"github.com/vadimistar/youtube-audio-bot/pkg/json"
 	"net/http"
 	"net/url"
 	"strings"
@@ -34,7 +33,7 @@ func (b *Bot) handleMessage(message *tgbotapi.Message) (err error) {
 		return err
 	}
 
-	err = b.sendTaskToWorker(message.Chat.ID, inputURL)
+	err = b.sendTaskToWorker(entity.TaskRequest{ChatID: message.Chat.ID, VideoURL: inputURL})
 	if err != nil {
 		return err
 	}
@@ -42,26 +41,17 @@ func (b *Bot) handleMessage(message *tgbotapi.Message) (err error) {
 	return nil
 }
 
-func (b *Bot) sendTaskToWorker(chatID int64, url string) (err error) {
+func (b *Bot) sendTaskToWorker(task entity.TaskRequest) (err error) {
 	defer func() {
 		err = errors.Wrap(err, "send task to worker")
 	}()
 
-	reqBody := new(bytes.Buffer)
-	err = json.NewEncoder(reqBody).Encode(entity.TaskRequest{
-		ChatID:   chatID,
-		VideoURL: url,
-	})
+	serializedTask, err := json.Serialize(task)
 	if err != nil {
 		return err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, b.workerURL, reqBody)
-	if err != nil {
-		return err
-	}
-
-	_, err = http.DefaultClient.Do(req)
+	_, err = http.Post(b.workerURL, "application/json", serializedTask)
 	if err != nil {
 		return err
 	}
