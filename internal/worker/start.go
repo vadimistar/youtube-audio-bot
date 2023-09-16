@@ -2,36 +2,25 @@ package worker
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"github.com/vadimistar/youtube-audio-bot/internal/entity"
 	"log"
+	"net/http"
 )
 
-func (w *Worker) Start() error {
-	messages, err := w.queue.Receive(context.Background())
+func (w *Worker) ServeHTTP(wr http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	messages, err := receiveMessages(r.Body)
 	if err != nil {
-		return err
+		log.Printf("receive messages: %s", err)
 	}
-	log.Printf("received %d messages", len(messages))
+	log.Printf("received %d messages", len(messages.Messages))
 
-	if len(messages) == 0 {
-		return nil
+	err = w.processMessages(messages)
+	if err != nil {
+		log.Printf("process messages: %s", err)
 	}
-
-	for _, message := range messages {
-		request, err := deserialize(message)
-		if err != nil {
-			return err
-		}
-
-		err = w.processRequest(request)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func deserialize(msg string) (request entity.TaskRequest, err error) {

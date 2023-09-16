@@ -8,6 +8,22 @@ import (
 	"net/http"
 )
 
+func (w *Worker) processMessages(messages messages) error {
+	for _, message := range messages.Messages {
+		request, err := deserialize(message.Details.Message.Body)
+		if err != nil {
+			return err
+		}
+
+		err = w.processRequest(request)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (w *Worker) processRequest(req entity.TaskRequest) error {
 	videoID, err := parseYoutubeVideoID(req.VideoURL)
 	if err != nil {
