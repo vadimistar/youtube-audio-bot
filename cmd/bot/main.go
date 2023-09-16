@@ -3,6 +3,7 @@ package main
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
+	"github.com/vadimistar/youtube-audio-bot/internal/telegram/responder"
 	"github.com/vadimistar/youtube-audio-bot/internal/telegram/webhook"
 	"log"
 	"net/http"
@@ -17,9 +18,11 @@ func main() {
 		log.Fatalf("new telegram bot API: %s", err)
 	}
 
-	telegramBot := webhook.NewBot(bot, os.Getenv("WORKER_CONTAINER_URL"))
+	webhookBot := webhook.NewBot(bot, os.Getenv("WORKER_CONTAINER_URL"))
+	responderBot := responder.NewBot(bot)
 
 	mux := http.NewServeMux()
-	mux.Handle("/", telegramBot)
+	mux.Handle("/", webhookBot)
+	mux.Handle("/responder", responderBot)
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), mux))
 }
