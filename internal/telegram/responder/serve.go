@@ -2,10 +2,14 @@ package responder
 
 import (
 	"encoding/json"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/vadimistar/youtube-audio-bot/internal/entity"
 	"io"
+	"log"
 	"net/http"
+)
+
+const (
+	msgUnknownError = "Произошла неизвестная ошибка. Попробуйте позже."
 )
 
 func (b *Bot) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -13,18 +17,15 @@ func (b *Bot) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	response, err := b.decodeResponse(r.Body)
 	if err != nil {
-		respondError(w, err)
+		log.Printf("err = %s", err)
 		return
 	}
 
-	if response.Error != "" {
-		msg := tgbotapi.NewMessage(response.ChatID, "Произошла неизвестная ошибка. Попробуйте позже.")
-		b.bot.Send(msg)
+	err = b.handleResponse(response)
+	if err != nil {
+		b.handleError(w, response.ChatID, err)
 		return
 	}
-
-	msg := tgbotapi.NewMessage(response.ChatID, response.FileLocation)
-	b.bot.Send(msg)
 }
 
 func (b *Bot) decodeResponse(resp io.Reader) (entity.TaskResponse, error) {

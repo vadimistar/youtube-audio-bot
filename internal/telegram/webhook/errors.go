@@ -25,8 +25,5 @@ func (b *Bot) handleError(chatID int64, err error) {
 		log.Printf("handleError: chatID=%d err=%s", chatID, err)
 	}
 
-	_, err = b.bot.Send(msg)
-	if err != nil {
-		log.Printf("handleError: send error message: %s", err)
-	}
+	b.bot.Send(msg)
 }
