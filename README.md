@@ -18,7 +18,9 @@ Copy the .env.example into .env. You will fill the empty fields later.
 2. Create a service account, give it an admin role. Get it's ID and fill 'SERVICE_ACCOUNT_ID' field in .env.
 3. [Authorize using your service account](https://cloud.yandex.ru/docs/container-registry/operations/authentication)
 4. Create two serverless containers (first is for Telegram bot, second is for worker), make them public and store their IDs and URLs into 'TELEGRAM_BOT_CONTAINER_ID', 'TELEGRAM_BOT_CONTAINER_URL', 'WORKER_CONTAINER_ID', 'WORKER_CONTAINER_URL' in .env.
-5. Create a bucket for storing objects, set object read access and object listing access to public, place the name of the bucket to 'YC_BUCKET_NAME' in .env'.
+5. Create a bucket for storing objects, set object read access and object listing access to public, place the name of the bucket to 'YC_BUCKET_NAME' in .env'. It's crucial to set the lifecycle of objects, so objects are automatically deleted after they were used.
+6. Configure credentials for Object Storage using 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' in .env. You can do that by creating a new static access key for your service account.
+7. Create a message queue, fill the 'MESSAGE_QUEUE_URL' field in .env and add the newly created message queue as a trigger for your serverless containers.
 
 ### Telegram
 

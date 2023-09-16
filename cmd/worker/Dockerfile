@@ -12,4 +12,6 @@ FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /app/worker .
 
+RUN apk add yt-dlp ffmpeg
+
 CMD ["./worker"]

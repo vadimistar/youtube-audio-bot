@@ -6,7 +6,7 @@ type TaskRequest struct {
 }
 
 type TaskResponse struct {
-	ChatID       int64  `json:"chat_id"`
-	FileLocation string `json:"file_location,omitempty"`
-	Error        string `json:"error,omitempty"`
+	ChatID int64  `json:"chat_id"`
+	Key    string `json:"key,omitempty"`
+	Error  string `json:"error,omitempty"`
 }

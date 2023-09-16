@@ -2,12 +2,13 @@ package webhook
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	"github.com/vadimistar/youtube-audio-bot/internal/entity"
 	"io"
-	"net/http"
 	"net/url"
 	"strings"
 )
@@ -57,7 +58,13 @@ func (b *Bot) sendTaskToWorker(task entity.TaskRequest) (err error) {
 		return err
 	}
 
-	_, err = http.Post(b.workerURL, "application/json", serializedTask)
+	message, err := io.ReadAll(serializedTask)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("sent message: %s", message)
+	err = b.queue.Send(context.Background(), string(message))
 	if err != nil {
 		return err
 	}
