@@ -14,4 +14,4 @@ push: build
 
 deploy: push
 	yc serverless container revision deploy --container-id $(TELEGRAM_BOT_CONTAINER_ID) --image 'cr.yandex/$(YC_IMAGE_REGISTRY_ID)/telegram-bot:latest' --service-account-id $(SERVICE_ACCOUNT_ID) --environment='$(shell tr '\n' ',' < .env)' --core-fraction 5 --execution-timeout 60s
-	yc serverless container revision deploy --container-id $(WORKER_CONTAINER_ID) --image 'cr.yandex/$(YC_IMAGE_REGISTRY_ID)/worker:latest' --service-account-id $(SERVICE_ACCOUNT_ID) --environment='$(shell tr '\n' ',' < .env)' --core-fraction 50 --execution-timeout 600s
+	yc serverless container revision deploy --container-id $(WORKER_CONTAINER_ID) --image 'cr.yandex/$(YC_IMAGE_REGISTRY_ID)/worker:latest' --service-account-id $(SERVICE_ACCOUNT_ID) --environment='$(shell tr '\n' ',' < .env)' --core-fraction 100 --execution-timeout 600s
