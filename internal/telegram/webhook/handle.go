@@ -20,7 +20,11 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) {
 	err := b.handleMessage(update.Message)
 	if err != nil {
 		b.handleError(update.Message.Chat.ID, err)
+		return
 	}
+
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Ваше видео обрабатывается. Как только оно будет готово, я отправлю вам итоговый файл.")
+	b.bot.Send(msg)
 }
 
 func (b *Bot) handleMessage(message *tgbotapi.Message) (err error) {
@@ -73,7 +77,7 @@ func serializeTask(task entity.TaskRequest) (io.Reader, error) {
 }
 
 func validateURL(text string) error {
-	_, err := url.Parse(text)
+	_, err := url.ParseRequestURI(text)
 	if err != nil {
 		return ErrInvalidURL
 	}
