@@ -4,17 +4,22 @@ import (
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	slogecho "github.com/samber/slog-echo"
 	"github.com/vadimistar/youtube-audio-bot/internal/queue/messagequeue"
 	"github.com/vadimistar/youtube-audio-bot/internal/repository/objectstorage"
 	"github.com/vadimistar/youtube-audio-bot/internal/telegram/responder"
 	"github.com/vadimistar/youtube-audio-bot/internal/telegram/webhook"
 	"log"
-	"net/http"
+	"log/slog"
 	"os"
 )
 
 func main() {
 	godotenv.Load()
+
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_TOKEN"))
 	if err != nil {
@@ -31,11 +36,16 @@ func main() {
 		log.Fatalf("create message queue: %s", err)
 	}
 
-	webhookBot := webhook.NewBot(bot, queue)
-	responderBot := responder.NewBot(bot, repository)
+	webhookBot := webhook.NewBot(bot, queue, logger)
+	responderBot := responder.NewBot(bot, repository, logger, os.Getenv("YC_BUCKET_UR"))
 
-	mux := http.NewServeMux()
-	mux.Handle("/", webhookBot)
-	mux.Handle("/responder", responderBot)
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), mux))
+	e := echo.New()
+
+	e.Use(slogecho.New(logger))
+	e.Use(middleware.Recover())
+
+	e.POST("/", webhookBot.HTTP)
+	e.POST("/responder", responderBot.HTTP)
+
+	log.Fatalln(e.Start(":" + os.Getenv("PORT")))
 }

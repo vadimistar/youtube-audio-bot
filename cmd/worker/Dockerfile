@@ -1,4 +1,4 @@
-FROM golang:1.20-alpine AS builder
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
@@ -12,6 +12,6 @@ FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /app/worker .
 
-RUN apk add yt-dlp ffmpeg
+RUN apk add ffmpeg yt-dlp
 
 CMD ["./worker"]

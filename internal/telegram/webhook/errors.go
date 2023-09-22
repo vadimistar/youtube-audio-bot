@@ -15,14 +15,14 @@ const (
 	MsgInvalidURL   = "Неправильная ссылка."
 )
 
-func (b *Bot) handleError(chatID int64, err error) {
+func (b *Bot) sendError(chatID int64, err error) {
 	msg := tgbotapi.NewMessage(chatID, MsgUnknownError)
 
 	switch {
 	case errors.Is(err, ErrInvalidURL):
 		msg.Text = MsgInvalidURL
 	default:
-		log.Printf("handleError: chatID=%d err=%s", chatID, err)
+		log.Printf("sendError: chatID=%d err=%s", chatID, err)
 	}
 
 	b.bot.Send(msg)

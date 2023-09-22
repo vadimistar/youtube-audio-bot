@@ -1,8 +1,8 @@
 package entity
 
 type TaskRequest struct {
-	ChatID   int64  `json:"chat_id"`
-	VideoURL string `json:"video_url"`
+	ChatID  int64  `json:"chat_id"`
+	VideoID string `json:"video_id"`
 }
 
 type TaskResponse struct {
