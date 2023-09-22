@@ -37,7 +37,7 @@ func main() {
 	}
 
 	webhookBot := webhook.NewBot(bot, queue, logger)
-	responderBot := responder.NewBot(bot, repository, logger, os.Getenv("YC_BUCKET_UR"))
+	responderBot := responder.NewBot(bot, repository, logger, os.Getenv("YC_BUCKET_URL"))
 
 	e := echo.New()
 
